@@ -1,12 +1,11 @@
 Package: wfbmcr
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Clean and Model EHR Data - WFBMC
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: James Willard
+Maintainer: James Willard <jwillard2@wakehealth.edu>
+Description: Contains helpful functions to aid in automated data cleaning and modeling for specific applications at WFBMC.
+License: GPL-2
 Encoding: UTF-8
 LazyData: true
 Imports:
