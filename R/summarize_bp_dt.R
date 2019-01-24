@@ -12,6 +12,7 @@
 #' @param enc_csn_var The variable name which includes information pertaining to encounter CSN
 #' @param sbp_var The variable name which includes information pertaining to systolic blood pressure
 #' @export
+#' @import rlang
 #' @import lubridate
 #' @import dplyr
 #' @return A data table summarizing patient blood pressure information
@@ -22,8 +23,8 @@
 
 
 
-summarize_bp_dt <- function(df, cutoff_date, num_years, enc_date_var, pat_mrn, sbp_var,
-                            enc_csn_var, pcp_var, vec_of_pcps) {
+summarize_bp_dt <- function(df, cutoff_date, num_years, enc_date_var, pat_mrn, sbp_var, enc_csn_var, pcp_var,
+                            vec_of_pcps) {
 
   enc_date_var <- enquo(enc_date_var)
   cov_name <- quo_name(enc_date_var)
@@ -34,8 +35,6 @@ summarize_bp_dt <- function(df, cutoff_date, num_years, enc_date_var, pat_mrn, s
 
   bp <- df %>% mutate(!!cov_name := as.Date(dmy_hms(!!enc_date_var)))
 
-
-
   ### Filter out missing SBP data, take only the first of each 'Encounter CSN' because represents ###
   ### same visit and same SBP ###
 
@@ -45,7 +44,6 @@ summarize_bp_dt <- function(df, cutoff_date, num_years, enc_date_var, pat_mrn, s
     group_by(!!pat_mrn, !!enc_csn_var, .by_group = TRUE) %>%
     slice(1) %>%
     ungroup()
-
 
   bp3 <- bp2 %>%
     group_by(!!pat_mrn, .by_group = TRUE) %>%
@@ -58,8 +56,7 @@ summarize_bp_dt <- function(df, cutoff_date, num_years, enc_date_var, pat_mrn, s
     mutate(MeanSBPgt140 = if_else(mean_sbp > 140, "Yes", "No")) %>%
     arrange(!!pat_mrn)
 
-
-  ### Find PCP for last patient visit and merge with result (since some patients ahve seen multiple PCP) ###
+  ### Find PCP for last patient visit and merge with result (since some patients have seen multiple PCP) ###
 
   pcp_mrn_list <- bp %>%
     filter(!is.na(!!sbp_var), !!enc_date_var >= cutoff_date - years(num_years),
@@ -69,12 +66,13 @@ summarize_bp_dt <- function(df, cutoff_date, num_years, enc_date_var, pat_mrn, s
     group_by(!!pat_mrn, .by_group = TRUE) %>%
     arrange(desc(!!enc_date_var)) %>%
     slice(1) %>%
+    ungroup() %>%
     select(!!pat_mrn, !!pcp_var)
 
 
   ### Join the results together ###
 
-  res <- left_join(pcp_mrn_list[, 2:3], bp3, by = set_names(quo_name(pat_mrn))) %>%
+  res <- left_join(pcp_mrn_list, bp3, by = set_names(quo_name(pat_mrn))) %>%
     select(!!pcp_var, !!pat_mrn, n_visits, d_last_visit, mean_sbp, sd_sbp, min_sbp, max_sbp, MeanSBPgt140)
 
 
