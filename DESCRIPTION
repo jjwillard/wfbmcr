@@ -1,7 +1,7 @@
 Package: wfbmcr
 Type: Package
 Title: Clean and Model EHR Data - WFBMC
-Version: 0.1.0
+Version: 0.1.1
 Author: James Willard
 Maintainer: James Willard <jwillard2@wakehealth.edu>
 Description: Contains helpful functions to aid in automated data cleaning and modeling for specific applications at WFBMC.
