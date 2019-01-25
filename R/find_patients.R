@@ -26,7 +26,7 @@ find_patients <- function(df, cutoff_date, vec_of_pcps, pcp_var, pat_mrn, enc_da
   enc_date_var <- enquo(enc_date_var)
 
   res <- df %>% filter(!!pcp_var %in% vec_of_pcps, !!enc_date_var >= cutoff_date - years(1),
-                            !!enc_date_var <= cutoff_date) %>%
+                            !!enc_date_var < cutoff_date) %>%
     group_by(!!pat_mrn, !!enc_date_var) %>% arrange(!!pat_mrn, .by_group = TRUE) %>% slice(1)
 
   invisible(res)
